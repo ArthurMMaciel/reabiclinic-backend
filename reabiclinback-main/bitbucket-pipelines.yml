@@ -1,0 +1,76 @@
+image: node:18.16.0
+
+pipelines:
+  default:
+    - step:
+        size: 2x
+        name: Build and Test
+        caches:
+          - node
+        script:
+          - npm install
+        services:
+          - docker
+  branches:
+    "develop":
+      - step:
+          size: 2x
+          name: Build and Test
+          caches:
+            - node
+          script:
+            - npm install
+            - npm run test
+          services:
+            - docker
+      - step:
+          size: 2x
+          name: criar imagem docker
+          script:
+            - docker login sa-saopaulo-1.ocir.io --username ${OCI_USER} --password ${OCI_PASSWORD}
+            - mkdir -p config
+            - npm run deploy:develop
+          services:
+            - docker
+          caches:
+            - docker
+      - step:
+          size: 2x
+          name: deploy na vm
+          script:
+            - echo "${OCI_SSH_KEY}" | base64 -d > ssh_key
+            - chmod 600 ssh_key
+            - mkdir -p ~/.ssh
+            - ssh-keyscan -H "${OCI_HOST}" >> ~/.ssh/known_hosts
+            - ssh -i ssh_key ubuntu@"${OCI_HOST}" \
+              "docker login sa-saopaulo-1.ocir.io --username ${OCI_USER} --password '${OCI_PASSWORD}' " \
+              " && docker pull sa-saopaulo-1.ocir.io/grokrp4pglkm/api-reabi:develop" \
+              " && sudo docker-compose -f docker-compose.yml down " \
+              " && sudo docker-compose -f docker-compose.yml up -d " \
+              " && docker system prune -af"
+    release/*:
+      - step:
+          size: 2x
+          name: criar imagem docker
+          script:
+            - docker login sa-saopaulo-1.ocir.io --username ${OCI_USER} --password ${OCI_PASSWORD}
+            - mkdir -p config
+            - npm run deploy:homolog
+          services:
+            - docker
+          caches:
+            - docker
+      - step:
+          size: 2x
+          name: deploy na vm
+          script:
+            - echo "${OCI_SSH_KEY}" | base64 -d > ssh_key
+            - chmod 600 ssh_key
+            - mkdir -p ~/.ssh
+            - ssh-keyscan -H "${OCI_HOST}" >> ~/.ssh/known_hosts
+            - ssh -i ssh_key ubuntu@"${OCI_HOST}" \
+              "docker login sa-saopaulo-1.ocir.io --username ${OCI_USER} --password '${OCI_PASSWORD}' " \
+              " && docker pull sa-saopaulo-1.ocir.io/grokrp4pglkm/api-reabi:homolog" \
+              " && sudo docker-compose -f docker-compose.yml down " \
+              " && sudo docker-compose -f docker-compose.yml up -d " \
+              " && docker system prune -af"
