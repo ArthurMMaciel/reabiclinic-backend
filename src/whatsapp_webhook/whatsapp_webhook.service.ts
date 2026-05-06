@@ -8,7 +8,6 @@ import { RedisService } from '../redis/redis.service';
 import { PacienteService } from '../paciente/paciente.service';
 import { google } from 'googleapis';
 import { CalendarController } from '../calendar/calendar.controller';
-import { OAuth2Client } from 'google-auth-library';
 import { Turno } from '../turno/entities/turno.entity';
 import { TurnoService } from '../turno/turno.service';
 import { UsuarioService } from '../usuario/usuario.service';
@@ -190,7 +189,7 @@ export class WhatsappWebhookService {
               };
 
               await this.redisService.set(escolha, novaEscolha);
-              const oAuth2Client: OAuth2Client = await new CalendarService(
+              const oAuth2Client = await new CalendarService(
                 this.usuarioService,
                 this.config,
               ).authorize(userConsent.profissionalEscolhido);
@@ -489,7 +488,7 @@ export class WhatsappWebhookService {
               data = this.createMessageData(number, `Digite o cpf do paciente`);
               if (this.cpfDigitado) {
                 texto = this.dataAgendada;
-                const oAuth2Client: OAuth2Client = await new CalendarService(
+                const oAuth2Client = await new CalendarService(
                   this.usuarioService,
                   this.config,
                 ).authorize(this.profissionalEscolhido);
@@ -717,7 +716,7 @@ export class WhatsappWebhookService {
     ultimasDatas,
     profissionalEscolhido,
   ) {
-    const oAuth2Client: OAuth2Client = await new CalendarService(
+    const oAuth2Client = await new CalendarService(
       this.usuarioService,
       this.config,
     ).authorize(profissionalEscolhido);
@@ -1017,7 +1016,7 @@ export class WhatsappWebhookService {
     ultimasDatas,
     profissionalEscolhido,
   ) {
-    const oAuth2Client: OAuth2Client = await new CalendarService(
+    const oAuth2Client = await new CalendarService(
       this.usuarioService,
       this.config,
     ).authorize(profissionalEscolhido);

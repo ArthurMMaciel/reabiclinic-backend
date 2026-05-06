@@ -22,7 +22,7 @@ export class CalendarService {
     void this.initializeOAuthClient();
   }
 
-  async loadSavedCredentialsIfExist(profissionalEscolhido) {
+  async loadSavedCredentialsIfExist(profissionalEscolhido): Promise<any> {
     try {
       const credentials = loadAuthorizedUserFromDiskOrEnv(this.config);
       if (!credentials) {

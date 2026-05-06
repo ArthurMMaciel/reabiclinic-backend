@@ -19,7 +19,7 @@ export class CalendarController {
     private readonly config: ConfigService,
   ) {}
 
-  async loadSavedCredentialsIfExist() {
+  async loadSavedCredentialsIfExist(): Promise<any> {
     try {
       const credentials = loadAuthorizedUserFromDiskOrEnv(this.config);
       if (!credentials) {
